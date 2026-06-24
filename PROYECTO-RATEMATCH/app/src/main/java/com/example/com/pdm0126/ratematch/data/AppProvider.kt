@@ -1,8 +1,15 @@
 package com.example.com.pdm0126.ratematch.data
 
 import android.content.Context
+import com.example.com.pdm0126.ratematch.data.database.AppDatabase
 
 class AppProvider(context: Context) {
-    // Aqui haremos la inicializacion de la base de datos de room
-    // Te dejo la clase preparada
+
+    private val appDatabase = AppDatabase.getDatabase(context)
+
+
+    val leagueDao = appDatabase.leagueDao()
+    val matchDao = appDatabase.matchDao()
+
+    // TODO: Agregar Repositories
 }
