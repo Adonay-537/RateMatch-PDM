@@ -7,6 +7,6 @@ data class Match(
     val scoreHome: Int = 0,
     val scoreAway: Int = 0,
     val status: String,
-    val isHidden: Boolean = false, // Para el Modo Oculto Anti-Spoiler
+    val isHidden: Boolean = false,
     val leagueId: Int = 0
 )

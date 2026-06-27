@@ -27,13 +27,9 @@ sealed class Routes : NavKey {
 
 @Composable
 fun AppNavigation() {
-    // El backStack en Navigation 3 es una SnapshotStateList (MutableList) que se puede observar
     val backStack = rememberNavBackStack<NavKey>(Routes.Login)
-    
-    // Creamos el despachador de eventos de navegación necesario para NavDisplay
     val dispatcherOwner = rememberNavigationEventDispatcherOwner()
 
-    // Proveemos el despachador a través de CompositionLocal para evitar el crash
     CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides dispatcherOwner) {
         NavDisplay(
             backStack = backStack,

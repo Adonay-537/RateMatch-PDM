@@ -15,3 +15,7 @@ data class LeagueEntity(
 fun LeagueEntity.toModel(): League {
     return League(id = id, name = name, country = country)
 }
+
+fun League.toEntity(): LeagueEntity {
+    return LeagueEntity(id = id, name = name, country = country)
+}

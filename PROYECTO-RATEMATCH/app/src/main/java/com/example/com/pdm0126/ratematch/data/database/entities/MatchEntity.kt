@@ -37,3 +37,11 @@ fun MatchEntity.toModel(): Match {
         status = status, isHidden = isHidden, leagueId = leagueId
     )
 }
+
+fun Match.toEntity(): MatchEntity {
+    return MatchEntity(
+        id = id, homeTeam = homeTeam, awayTeam = awayTeam,
+        scoreHome = scoreHome, scoreAway = scoreAway,
+        status = status, isHidden = isHidden, leagueId = leagueId
+    )
+}
