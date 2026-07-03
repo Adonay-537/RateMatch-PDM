@@ -1,21 +1,28 @@
 package com.example.com.pdm0126.ratematch.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.rememberNavigationEventDispatcherOwner
-import com.example.com.pdm0126.ratematch.screens.LoginScreen
 import com.example.com.pdm0126.ratematch.screens.DashboardScreen
+import com.example.com.pdm0126.ratematch.screens.LoginScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class Routes : NavKey {
     @Serializable
     data object Login : Routes()
+    @Serializable
+    data object Register : Routes() // Nueva ruta lista
     @Serializable
     data object Dashboard : Routes()
 }
@@ -34,6 +41,8 @@ fun AppNavigation() {
                 }
             },
             entryProvider = entryProvider {
+
+                // Pantalla de Login
                 entry<Routes.Login> {
                     LoginScreen(
                         onLoginSuccess = {
@@ -42,8 +51,13 @@ fun AppNavigation() {
                     )
                 }
 
-                entry<Routes.Dashboard> {
+                entry<Routes.Register> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = "Formulario de Registro en construcción...")
+                    }
+                }
 
+                entry<Routes.Dashboard> {
                     DashboardScreen()
                 }
             }

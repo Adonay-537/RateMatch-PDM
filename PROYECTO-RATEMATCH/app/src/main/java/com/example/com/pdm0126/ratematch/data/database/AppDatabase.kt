@@ -6,18 +6,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.com.pdm0126.ratematch.data.database.dao.LeagueDao
 import com.example.com.pdm0126.ratematch.data.database.dao.MatchDao
+import com.example.com.pdm0126.ratematch.data.database.dao.UserDao
 import com.example.com.pdm0126.ratematch.data.database.entities.LeagueEntity
 import com.example.com.pdm0126.ratematch.data.database.entities.MatchEntity
+import com.example.com.pdm0126.ratematch.data.database.entities.UserEntity
 
 @Database(
-    entities = [LeagueEntity::class, MatchEntity::class],
-    version = 1,
+    entities = [LeagueEntity::class, MatchEntity::class, UserEntity::class], // Se agregó UserEntity
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun leagueDao(): LeagueDao
     abstract fun matchDao(): MatchDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
