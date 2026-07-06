@@ -3,11 +3,6 @@ package com.example.com.pdm0126.ratematch.data.remote.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MatchesResponse(
-    val matches: List<MatchDto>
-)
-
-@Serializable
 data class MatchDto(
     val id: Int,
     val homeTeam: TeamDto?,

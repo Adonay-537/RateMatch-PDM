@@ -1,48 +1,67 @@
 package com.example.com.pdm0126.ratematch.data.remote
 
+import android.util.Log
+import com.example.com.pdm0126.ratematch.BuildConfig
+import com.example.com.pdm0126.ratematch.data.remote.dto.LeagueTeamsResponse
 import com.example.com.pdm0126.ratematch.data.remote.dto.MatchDto
 import com.example.com.pdm0126.ratematch.data.remote.dto.MatchesResponse
-import com.example.com.pdm0126.ratematch.data.remote.dto.LeagueTeamsResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 
 class FootballApiService(private val client: HttpClient = KtorClient.client) {
-    
-    // Cambiamos el endpoint a v4 y usamos dateFrom/dateTo para filtrar por un solo día
-    // También añadimos el header de autenticación
+
     suspend fun getMatches(date: String): List<MatchDto> {
         return try {
-            val response: MatchesResponse = client.get("https://api.football-data.org/v4/matches") {
-                header("X-Auth-Token", "8937397c72444c139c80d19f85c7c25c")
+            Log.d("FootballAPI", "Buscando partidos para: $date")
+            
+            // Verificamos si el token se inyectó correctamente
+            if (BuildConfig.API_TOKEN.isEmpty()) {
+                Log.e("FootballAPI", "❌ ERROR: El API_TOKEN está vacío en BuildConfig. Revisa local.properties")
+            }
+
+            // Usamos ruta relativa "matches" para heredar Base URL y Token de KtorClient
+            val response: MatchesResponse = client.get("matches") {
                 url {
                     parameters.append("dateFrom", date)
                     parameters.append("dateTo", date)
                 }
             }.body()
-            response.matches
+
+            if (response.message != null) {
+                Log.w("FootballAPI", "⚠️ Mensaje de la API: ${response.message}")
+            }
+
+            val listaDePartidos = response.matches
+            
+            if (listaDePartidos.isEmpty()) {
+                Log.i("FootballAPI", "ℹ️ No hay partidos para la fecha $date en tus ligas suscritas.")
+            } else {
+                Log.d("FootballAPI", "¡Éxito! Partidos recibidos: ${listaDePartidos.size}")
+            }
+            listaDePartidos
         } catch (e: Exception) {
+            Log.e("FootballAPI", "💥 ERROR en getMatches: ${e.message}")
             emptyList()
         }
     }
 
     suspend fun getTeams(competitionId: Int): LeagueTeamsResponse {
         return try {
-            client.get("https://api.football-data.org/v4/competitions/$competitionId/teams") {
-                header("X-Auth-Token", "8937397c72444c139c80d19f85c7c25c")
-            }.body()
+            client.get("competitions/$competitionId/teams").body()
         } catch (e: Exception) {
+            Log.e("FootballAPI", "💥 ERROR en getTeams: ${e.message}")
             LeagueTeamsResponse(emptyList())
         }
     }
 
     suspend fun getNationalTeams(): LeagueTeamsResponse {
         return try {
-            client.get("https://api.football-data.org/v4/teams?type=NATIONAL") {
-                header("X-Auth-Token", "8937397c72444c139c80d19f85c7c25c")
-            }.body()
+            Log.d("FootballAPI", "Buscando selecciones nacionales...")
+            // Usamos ruta relativa para heredar la configuración del cliente
+            client.get("teams?type=NATIONAL").body()
         } catch (e: Exception) {
+            Log.e("FootballAPI", "💥 ERROR en getNationalTeams: ${e.message}")
             LeagueTeamsResponse(emptyList())
         }
     }
