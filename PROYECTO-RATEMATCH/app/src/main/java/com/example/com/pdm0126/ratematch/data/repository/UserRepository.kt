@@ -16,13 +16,12 @@ class UserRepository(private val userDao: UserDao) {
         return true
     }
 
-    // iniciar sesión
     suspend fun loginUser(email: String, passwordHash: String): UserEntity? {
         val user = userDao.getUserByEmail(email)
 
         if (user != null && user.passwordHash == passwordHash) {
             return user
         }
-        return null // Credenciales incorrectas
+        return null
     }
 }

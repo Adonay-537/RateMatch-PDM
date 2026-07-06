@@ -3,16 +3,22 @@ import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
 }
 
 val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(FileInputStream(localPropertiesFile))
+val localPropertiesFile = project.rootProject.file("local.properties")
+if (!localPropertiesFile.exists()) {
+    // If not found in root, check the current module's parent directory (PROYECTO-RATEMATCH)
+    val altFile = file("../local.properties")
+    if (altFile.exists()) {
+        altFile.inputStream().use { localProperties.load(it) }
+    }
+} else {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
 }
 val apiToken = localProperties.getProperty("FOOTBALL_API_TOKEN") ?: ""
 
@@ -47,10 +53,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
     
-    kotlinOptions {
-        jvmTarget = "21"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -59,6 +61,9 @@ android {
 
 kotlin {
     jvmToolchain(21)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
 }
 
 dependencies {
@@ -77,18 +82,29 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-    implementation("androidx.compose.material:material-icons-extended:1.7.5")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+    
+    // Ktor - Todas las versiones unificadas via version.ref en TOML
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
+    
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigationevent.compose)
     implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+    implementation(libs.androidx.navigation.compose)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.androidx.compose.runtime.livedata)
 }

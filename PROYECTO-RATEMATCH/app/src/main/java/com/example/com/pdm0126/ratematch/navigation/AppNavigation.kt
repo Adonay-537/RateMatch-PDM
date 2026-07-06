@@ -1,66 +1,105 @@
 package com.example.com.pdm0126.ratematch.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.ui.NavDisplay
-import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
-import androidx.navigationevent.compose.rememberNavigationEventDispatcherOwner
-import com.example.com.pdm0126.ratematch.screens.DashboardScreen
-import com.example.com.pdm0126.ratematch.screens.LoginScreen
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.toRoute
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.com.pdm0126.ratematch.RateMatchApplication
+import com.example.com.pdm0126.ratematch.screens.*
+import androidx.compose.runtime.collectAsState
+import com.example.com.pdm0126.ratematch.ui.viewmodel.AuthViewModel
+import com.example.com.pdm0126.ratematch.ui.viewmodel.DashboardViewModel
 import kotlinx.serialization.Serializable
 
-@Serializable
-sealed class Routes : NavKey {
-    @Serializable
-    data object Login : Routes()
-    @Serializable
-    data object Register : Routes() // Nueva ruta lista
-    @Serializable
-    data object Dashboard : Routes()
-}
+@Serializable data object Login
+@Serializable data object Register
+@Serializable data object Dashboard
+@Serializable data object Settings
+@Serializable data class MatchDetail(val matchId: Int)
 
 @Composable
-fun AppNavigation() {
-    val backStack = rememberNavBackStack(Routes.Login)
-    val dispatcherOwner = rememberNavigationEventDispatcherOwner()
+fun AppNavigation(
+    isDarkMode: Boolean,
+    onDarkThemeChange: (Boolean) -> Unit
+) {
+    val navController = rememberNavController()
+    val context = LocalContext.current
+    val appProvider = (context.applicationContext as RateMatchApplication).appProvider
 
-    CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides dispatcherOwner) {
-        NavDisplay(
-            backStack = backStack,
-            onBack = {
-                if (backStack.size > 1) {
-                    backStack.removeAt(backStack.size - 1)
-                }
-            },
-            entryProvider = entryProvider {
+    val authViewModel: AuthViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                AuthViewModel(appProvider.authRepository)
+            }
+        }
+    )
 
-                // Pantalla de Login
-                entry<Routes.Login> {
-                    LoginScreen(
-                        onLoginSuccess = {
-                            backStack.add(Routes.Dashboard)
-                        }
-                    )
-                }
+    val currentUser = authViewModel.authState.collectAsState().value
 
-                entry<Routes.Register> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = "Formulario de Registro en construcción...")
+    NavHost(
+        navController = navController,
+        startDestination = if (appProvider.authRepository.currentUser != null) Dashboard else Login
+    ) {
+        composable<Login> {
+            LoginScreen(
+                viewModel = authViewModel,
+                onLoginSuccess = {
+                    navController.navigate(Dashboard) {
+                        popUpTo(Login) { inclusive = true }
+                    }
+                },
+                onNavigateToRegister = { navController.navigate(Register) }
+            )
+        }
+        composable<Register> {
+            RegisterScreen(
+                viewModel = authViewModel,
+                onRegisterSuccess = {
+                    navController.navigate(Dashboard) {
+                        popUpTo(Login) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = { navController.popBackStack() }
+            )
+        }
+        composable<Dashboard> {
+            val dashboardViewModel: DashboardViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer {
+                        DashboardViewModel(appProvider.matchRepository)
                     }
                 }
-
-                entry<Routes.Dashboard> {
-                    DashboardScreen()
+            )
+            DashboardScreen(
+                viewModel = dashboardViewModel,
+                onNavigateToSettings = { navController.navigate(Settings) },
+                onNavigateToMatchDetail = { id -> navController.navigate(MatchDetail(id)) }
+            )
+        }
+        composable<Settings> {
+            SettingsScreen(
+                isDarkMode = isDarkMode,
+                onDarkModeChange = onDarkThemeChange,
+                onNavigateBack = { navController.popBackStack() },
+                onLogout = {
+                    authViewModel.logout()
+                    navController.navigate(Login) {
+                        popUpTo(Dashboard) { inclusive = true }
+                    }
                 }
-            }
-        )
+            )
+        }
+        composable<MatchDetail> { backStackEntry ->
+            val route = backStackEntry.toRoute<MatchDetail>()
+            MatchDetailScreen(
+                matchId = route.matchId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }

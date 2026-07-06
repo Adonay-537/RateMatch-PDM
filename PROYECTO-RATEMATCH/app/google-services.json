@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "715128106782",
+    "project_id": "ratematch-fea67",
+    "storage_bucket": "ratematch-fea67.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:715128106782:android:13f93f728d376e90bd230f",
+        "android_client_info": {
+          "package_name": "com.example.com.pdm0126.ratematch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvR2Au6AJ0tSN1c5mZ15DdL0gA4kphOMQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

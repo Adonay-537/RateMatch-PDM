@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,18 +17,19 @@ import com.example.com.pdm0126.ratematch.ui.viewmodel.AuthState
 import com.example.com.pdm0126.ratematch.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(
+fun RegisterScreen(
     viewModel: AuthViewModel,
-    onLoginSuccess: () -> Unit,
-    onNavigateToRegister: () -> Unit
+    onRegisterSuccess: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val authState by viewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
-            onLoginSuccess()
+            onRegisterSuccess()
         }
     }
 
@@ -39,10 +41,19 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "RateMatch",
-            fontSize = 40.sp,
+            text = "Crear Cuenta",
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 48.dp)
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Nombre de Usuario") },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            singleLine = true
         )
 
         OutlinedTextField(
@@ -73,7 +84,7 @@ fun LoginScreen(
         }
 
         Button(
-            onClick = { viewModel.login(email, password) },
+            onClick = { viewModel.register(email, password, name) },
             modifier = Modifier.fillMaxWidth(),
             enabled = authState !is AuthState.Loading
         ) {
@@ -84,15 +95,15 @@ fun LoginScreen(
                     strokeWidth = 2.dp
                 )
             } else {
-                Text("Iniciar Sesión")
+                Text("Registrarse")
             }
         }
 
         TextButton(
-            onClick = onNavigateToRegister,
+            onClick = onNavigateToLogin,
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("¿No tienes cuenta? Regístrate aquí")
+            Text("¿Ya tienes cuenta? Inicia sesión")
         }
     }
 }

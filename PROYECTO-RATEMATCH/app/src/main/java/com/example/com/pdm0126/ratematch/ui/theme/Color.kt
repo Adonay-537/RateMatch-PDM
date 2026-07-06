@@ -2,10 +2,17 @@ package com.example.com.pdm0126.ratematch.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val PrimaryLight = Color(0xFFA5D6A7)
+val SecondaryLight = Color(0xFFC8E6C9)
+val TertiaryLight = Color(0xFFE8F5E9)
+val SurfaceLight = Color(0xFFFCFDFC)
+val OnSurfaceLight = Color(0xFF1B1B1B)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val PrimaryDark = Color(0xFF4CAF50)
+val SecondaryDark = Color(0xFF388E3C)
+val TertiaryDark = Color(0xFF2E7D32)
+val SurfaceDark = Color(0xFF212121)
+val OnSurfaceDark = Color(0xFFEEEEEE)
+
+val ScoreBackground = Color(0xFFF1F8F1)
+val ScoreBackgroundDark = Color(0xFF2C2C2C)

@@ -8,5 +8,6 @@ data class Match(
     val scoreAway: Int = 0,
     val status: String,
     val isHidden: Boolean = false,
+    val isFavorite: Boolean = false,
     val leagueId: Int = 0
 )

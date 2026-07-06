@@ -12,8 +12,8 @@ import com.example.com.pdm0126.ratematch.data.database.entities.MatchEntity
 import com.example.com.pdm0126.ratematch.data.database.entities.UserEntity
 
 @Database(
-    entities = [LeagueEntity::class, MatchEntity::class, UserEntity::class], // Se agregó UserEntity
-    version = 2,
+    entities = [LeagueEntity::class, MatchEntity::class, UserEntity::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
