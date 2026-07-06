@@ -26,7 +26,7 @@ class FootballApiService(private val client: HttpClient = KtorClient.client) {
                     parameters.append("dateFrom", date)
                     parameters.append("dateTo", date)
                 }
-            }.body()
+            }.body() //Reivsando
 
             if (response.message != null) {
                 Log.w("FootballAPI", "⚠️ Mensaje de la API: ${response.message}")
