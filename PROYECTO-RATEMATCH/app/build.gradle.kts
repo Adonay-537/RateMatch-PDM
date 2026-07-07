@@ -108,4 +108,11 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.compose.runtime.livedata)
+    
+    // Coil para cargar imágenes desde URL
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // WorkManager para tareas en segundo plano (Notificaciones)
+    val workVersion = "2.9.0"
+    implementation("androidx.work:work-runtime-ktx:$workVersion")
 }

@@ -14,6 +14,7 @@ import com.example.com.pdm0126.ratematch.screens.*
 import androidx.compose.runtime.collectAsState
 import com.example.com.pdm0126.ratematch.ui.viewmodel.AuthViewModel
 import com.example.com.pdm0126.ratematch.ui.viewmodel.DashboardViewModel
+import com.example.com.pdm0126.ratematch.ui.viewmodel.MatchDetailViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable data object Login
@@ -96,8 +97,15 @@ fun AppNavigation(
         }
         composable<MatchDetail> { backStackEntry ->
             val route = backStackEntry.toRoute<MatchDetail>()
+            val matchDetailViewModel: MatchDetailViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer {
+                        MatchDetailViewModel(route.matchId, appProvider.matchRepository)
+                    }
+                }
+            )
             MatchDetailScreen(
-                matchId = route.matchId,
+                viewModel = matchDetailViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

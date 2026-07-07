@@ -2,17 +2,20 @@ package com.example.com.pdm0126.ratematch.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val PrimaryLight = Color(0xFFA5D6A7)
-val SecondaryLight = Color(0xFFC8E6C9)
-val TertiaryLight = Color(0xFFE8F5E9)
-val SurfaceLight = Color(0xFFFCFDFC)
-val OnSurfaceLight = Color(0xFF1B1B1B)
+// Paleta de Colores RateMatch - Azul Moderno
+val Blue80 = Color(0xFFADC6FF)
+val BlueGrey80 = Color(0xFFBBC6D4)
+val LightBlue80 = Color(0xFFB0D1EC)
 
-val PrimaryDark = Color(0xFF4CAF50)
-val SecondaryDark = Color(0xFF388E3C)
-val TertiaryDark = Color(0xFF2E7D32)
-val SurfaceDark = Color(0xFF212121)
-val OnSurfaceDark = Color(0xFFEEEEEE)
+val Blue40 = Color(0xFF355CA8)
+val BlueGrey40 = Color(0xFF535F70)
+val LightBlue40 = Color(0xFF436280)
 
-val ScoreBackground = Color(0xFFF1F8F1)
-val ScoreBackgroundDark = Color(0xFF2C2C2C)
+// Colores para Modo Oscuro (Gris Oscuro en vez de Negro Puro)
+val DarkGrey = Color(0xFF1A1C1E)
+val SurfaceGrey = Color(0xFF2E3033)
+
+// Acentos
+val SuccessGreen = Color(0xFF4CAF50)
+val ErrorRed = Color(0xFFD32F2F)
+val PendingGray = Color(0xFF757575)

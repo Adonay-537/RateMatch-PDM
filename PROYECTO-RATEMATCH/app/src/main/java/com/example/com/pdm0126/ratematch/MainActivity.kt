@@ -7,7 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.com.pdm0126.ratematch.navigation.AppNavigation
-import com.example.com.pdm0126.ratematch.ui.theme.RATEMATCHTheme
+import com.example.com.pdm0126.ratematch.ui.theme.RateMatchTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
             val systemInDarkTheme = isSystemInDarkTheme()
             var isDarkMode by rememberSaveable { mutableStateOf(systemInDarkTheme) }
 
-            RATEMATCHTheme(darkTheme = isDarkMode) {
+            RateMatchTheme(darkTheme = isDarkMode) {
                 AppNavigation(
                     isDarkMode = isDarkMode,
                     onDarkThemeChange = { isDarkMode = it }

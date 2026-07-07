@@ -2,6 +2,7 @@ package com.example.com.pdm0126.ratematch.screens
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.com.pdm0126.ratematch.data.model.Match
 import com.example.com.pdm0126.ratematch.ui.viewmodel.DashboardState
 import com.example.com.pdm0126.ratematch.ui.viewmodel.DashboardViewModel
@@ -125,10 +125,7 @@ fun DashboardScreen(
                 }
                 is DashboardState.Success -> {
                     val filteredMatches = if (isLiveOnly) {
-                        state.matches.filter { 
-                            it.status == "LIVE" || it.status == "IN_PLAY" || 
-                            it.status == "1H" || it.status == "2H" || it.status == "HT" 
-                        }
+                        state.matches.filter { it.status == "LIVE" || it.status == "IN_PLAY" || it.status == "1H" || it.status == "2H" || it.status == "HT" }
                     } else {
                         state.matches
                     }
@@ -138,7 +135,6 @@ fun DashboardScreen(
                             Text("No hay partidos disponibles.")
                         }
                     } else {
-                        // Agrupamos respetando el orden de la lista ya sorteada
                         val groupedByLeague = filteredMatches.groupBy { it.leagueName }
                         
                         LazyColumn(
@@ -147,10 +143,10 @@ fun DashboardScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             groupedByLeague.forEach { (leagueName, matches) ->
-                                item(key = leagueName) {
-                                    LeagueHeader(leagueName, matches.firstOrNull()?.leagueLogo)
+                                item {
+                                    LeagueHeader(leagueName)
                                 }
-                                items(matches, key = { it.id }) { match ->
+                                items(matches) { match ->
                                     MatchItem(
                                         match = match,
                                         onClick = { onNavigateToMatchDetail(match.id) },
@@ -179,26 +175,14 @@ fun DashboardScreen(
 }
 
 @Composable
-fun LeagueHeader(name: String, logoUrl: String?) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+fun LeagueHeader(name: String) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp)
-    ) {
-        if (!logoUrl.isNullOrEmpty()) {
-            AsyncImage(
-                model = logoUrl,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-        }
-        Text(
-            text = name,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-    }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -221,40 +205,12 @@ fun MatchItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                // Fila Equipo Local
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(
-                        model = match.homeLogo,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = match.homeTeam,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Fila Equipo Visitante
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(
-                        model = match.awayLogo,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = match.awayTeam,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                
+                Text(
+                    text = "${match.homeTeam} vs ${match.awayTeam}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = match.status,
@@ -273,29 +229,28 @@ fun MatchItem(
                 }
             }
 
-            Column(horizontalAlignment = Alignment.End) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 if (!match.isHidden) {
                     Text(
                         text = "${match.scoreHome} - ${match.scoreAway}",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 } else {
                     Text(
                         text = "? - ?",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
+                        fontSize = 18.sp,
                         color = Color.Gray,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 }
                 
                 IconButton(onClick = onHideScoreClick) {
                     Icon(
                         imageVector = if (match.isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (match.isHidden) "Mostrar resultado" else "Ocultar resultado",
-                        modifier = Modifier.size(20.dp)
+                        contentDescription = if (match.isHidden) "Mostrar resultado" else "Ocultar resultado"
                     )
                 }
             }
