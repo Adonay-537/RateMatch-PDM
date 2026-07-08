@@ -17,7 +17,6 @@ class RateMatchApplication : Application() {
     }
 
     private fun setupNotificationWorker() {
-        // Configuramos una tarea periódica cada 15 minutos (mínimo permitido por Android)
         val workRequest = PeriodicWorkRequestBuilder<MatchNotificationWorker>(15, TimeUnit.MINUTES)
             .build()
 

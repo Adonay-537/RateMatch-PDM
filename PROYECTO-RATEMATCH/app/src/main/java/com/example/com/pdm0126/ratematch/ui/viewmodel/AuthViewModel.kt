@@ -21,7 +21,6 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
     val authState: StateFlow<AuthState> = _authState
 
     init {
-        // Al arrancar, intentamos bajar la última API Key de Firebase
         viewModelScope.launch {
             authRepository.refreshDynamicConfig()
         }

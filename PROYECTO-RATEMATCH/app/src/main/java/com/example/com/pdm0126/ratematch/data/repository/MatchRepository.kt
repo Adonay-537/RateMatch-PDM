@@ -29,7 +29,6 @@ class MatchRepository(
 
                 val existingMatch = matchDao.getMatchByIdInstant(resource.fixture.id)
                 val savedRating = existingMatch?.userRating ?: 0
-                // Rescatamos las predicciones locales para no borrarlas al refrescar la API
                 val savedPredHome = existingMatch?.predictedHome
                 val savedPredAway = existingMatch?.predictedAway
 
@@ -47,8 +46,8 @@ class MatchRepository(
                     homeLogo = resource.teams.home.logo ?: "",
                     awayLogo = resource.teams.away.logo ?: "",
                     userRating = savedRating,
-                    predictedHome = savedPredHome, // Guardamos el valor
-                    predictedAway = savedPredAway  // Guardamos el valor
+                    predictedHome = savedPredHome,
+                    predictedAway = savedPredAway
                 )
             }
 
@@ -127,7 +126,7 @@ class MatchRepository(
                 "awayTeam" to match.awayTeam,
                 "predictedHome" to homeScore,
                 "predictedAway" to awayScore,
-                "status" to "PENDING", // PENDING hasta que el partido acabe y repartamos puntos
+                "status" to "PENDING",
                 "timestamp" to System.currentTimeMillis()
             )
 

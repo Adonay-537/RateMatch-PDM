@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
 @Serializable data object Register
 @Serializable data object Dashboard
 @Serializable data object Settings
-@Serializable data object Ranking // NUEVA RUTA
+@Serializable data object Ranking
 @Serializable data class MatchDetail(val matchId: Int)
 
 @Composable
@@ -82,7 +82,7 @@ fun AppNavigation(
                 viewModel = dashboardViewModel,
                 onNavigateToSettings = { navController.navigate(Settings) },
                 onNavigateToMatchDetail = { id -> navController.navigate(MatchDetail(id)) },
-                onNavigateToRanking = { navController.navigate(Ranking) } // NUEVA ACCIÓN
+                onNavigateToRanking = { navController.navigate(Ranking) }
             )
         }
         composable<Settings> {

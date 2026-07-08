@@ -11,10 +11,6 @@ class FootballApiService(private val client: HttpClient = KtorClient.client) {
 
     private val baseUrl = "https://v3.football.api-sports.io/"
 
-    /**
-     * Obtenemos partidos para una fecha y zona horaria específica.
-     * La API filtrará los partidos que ocurren en ese día para esa zona horaria.
-     */
     suspend fun getMatchesByDate(date: String, timezone: String): List<ApiMatchResource> {
         return try {
             val key = KtorClient.getApiKey()

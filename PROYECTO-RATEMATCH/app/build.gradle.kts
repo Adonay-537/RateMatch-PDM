@@ -13,7 +13,6 @@ plugins {
 val localProperties = Properties()
 val localPropertiesFile = project.rootProject.file("local.properties")
 if (!localPropertiesFile.exists()) {
-    // If not found in root, check the current module's parent directory (PROYECTO-RATEMATCH)
     val altFile = file("../local.properties")
     if (altFile.exists()) {
         altFile.inputStream().use { localProperties.load(it) }
@@ -87,7 +86,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.compose.material.icons.extended)
     
-    // Ktor - Todas las versiones unificadas via version.ref en TOML
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.cio)
@@ -110,12 +108,10 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.compose.runtime.livedata)
     
-    // Coil para cargar imágenes desde URL
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    // WorkManager para tareas en segundo plano (Notificaciones)
     val workVersion = "2.9.0"
     implementation("androidx.work:work-runtime-ktx:$workVersion")
 }

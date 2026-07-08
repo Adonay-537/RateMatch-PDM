@@ -34,7 +34,7 @@ class NotificationHelper(private val context: Context) {
 
     fun showGoalNotification(teamName: String, scorer: String, score: String) {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Debería ser un icono de la app
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("¡GOL! de $teamName - $scorer")
             .setContentText(score)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

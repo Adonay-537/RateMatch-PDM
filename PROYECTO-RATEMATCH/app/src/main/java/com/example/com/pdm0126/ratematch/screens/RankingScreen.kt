@@ -84,11 +84,10 @@ fun RankingScreen(
 
 @Composable
 fun RankedMatchItem(position: Int, match: RankedMatch) {
-    // Colores para el Top 3 (Oro, Plata, Bronce)
     val positionColor = when (position) {
-        1 -> Color(0xFFFFD700) // Oro
-        2 -> Color(0xFFC0C0C0) // Plata
-        3 -> Color(0xFFCD7F32) // Bronce
+        1 -> Color(0xFFFFD700)
+        2 -> Color(0xFFC0C0C0)
+        3 -> Color(0xFFCD7F32)
         else -> MaterialTheme.colorScheme.primaryContainer
     }
 
@@ -102,7 +101,6 @@ fun RankedMatchItem(position: Int, match: RankedMatch) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Círculo con la posición
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -119,7 +117,6 @@ fun RankedMatchItem(position: Int, match: RankedMatch) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Info del partido
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = match.leagueName,

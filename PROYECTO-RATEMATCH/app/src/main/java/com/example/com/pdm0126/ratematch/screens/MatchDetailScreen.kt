@@ -89,7 +89,7 @@ fun MatchDetailScreen(
                             viewModel.rateMatch(rating)
                         },
                         onPredictMatch = { homeScore, awayScore ->
-                            viewModel.predictMatch(homeScore, awayScore) // Enlace al nuevo método
+                            viewModel.predictMatch(homeScore, awayScore)
                         }
                     )
                 }
@@ -104,7 +104,7 @@ fun MatchDetailContent(
     statistics: List<TeamStatisticsDto>,
     events: List<EventDto>,
     onRateMatch: (Int) -> Unit,
-    onPredictMatch: (Int, Int) -> Unit // Nuevo lambda
+    onPredictMatch: (Int, Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -113,7 +113,6 @@ fun MatchDetailContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Marcador y Equipos
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -188,7 +187,6 @@ fun MatchDetailContent(
             }
         }
 
-        // Estadísticas con Barras
         if (statistics.isNotEmpty()) {
             item {
                 Text(
@@ -268,7 +266,6 @@ fun PredictionSection(match: Match, onSavePrediction: (Int, Int) -> Unit) {
     var tempHomeScore by remember { mutableIntStateOf(match.predictedHome ?: 0) }
     var tempAwayScore by remember { mutableIntStateOf(match.predictedAway ?: 0) }
 
-    // El usuario puede predecir únicamente si el partido no ha empezado (Not Started)
     val isPredictable = match.status == "NS"
 
     Card(
@@ -375,7 +372,6 @@ fun ScoreSelector(
     }
 }
 
-// COMPONENTE DE ESTRELLAS
 @Composable
 fun RatingBar(
     rating: Int,

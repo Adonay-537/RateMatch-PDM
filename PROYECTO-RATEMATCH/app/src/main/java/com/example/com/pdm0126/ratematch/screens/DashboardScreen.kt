@@ -143,7 +143,6 @@ fun DashboardScreen(
                             Text("No hay partidos disponibles.")
                         }
                     } else {
-                        // Agrupamos respetando el orden de la lista ya sorteada
                         val groupedByLeague = filteredMatches.groupBy { it.leagueName }
                         
                         LazyColumn(
@@ -226,7 +225,6 @@ fun MatchItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                // Fila Equipo Local
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AsyncImage(
                         model = match.homeLogo,
@@ -243,7 +241,6 @@ fun MatchItem(
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
-                // Fila Equipo Visitante
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AsyncImage(
                         model = match.awayLogo,

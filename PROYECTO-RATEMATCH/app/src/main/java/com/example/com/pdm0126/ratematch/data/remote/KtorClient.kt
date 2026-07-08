@@ -38,8 +38,5 @@ object KtorClient {
             logger = Logger.DEFAULT
             level = LogLevel.ALL
         }
-
-        // NO ponemos URL por defecto aquí para evitar conflictos con la API vieja
-        // Configuramos los headers en cada petición desde el Service
     }
 }
