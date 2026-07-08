@@ -3,6 +3,7 @@ package com.example.com.pdm0126.ratematch.data.repository
 import com.example.com.pdm0126.ratematch.data.database.dao.LeagueDao
 import com.example.com.pdm0126.ratematch.data.remote.FootballApiService
 import com.example.com.pdm0126.ratematch.data.remote.dto.TeamDto
+import com.example.com.pdm0126.ratematch.data.remote.dto.LeagueTeamsResponse
 
 class LeagueRepository(
     private val leagueDao: LeagueDao,
@@ -10,8 +11,8 @@ class LeagueRepository(
 ) {
     suspend fun getTeamsForLeague(competitionId: Int): List<TeamDto> {
         return try {
-            val response = apiService.getTeams(competitionId)
-            response.response.map { it.team }
+            val apiResponse: LeagueTeamsResponse = apiService.getTeams(competitionId)
+            apiResponse.response.map { it.team }
         } catch (e: Exception) {
             emptyList()
         }
@@ -19,8 +20,8 @@ class LeagueRepository(
 
     suspend fun getNationalTeams(): List<TeamDto> {
         return try {
-            val response = apiService.getNationalTeams()
-            response.response.map { it.team }
+            val apiResponse: LeagueTeamsResponse = apiService.getNationalTeams()
+            apiResponse.response.map { it.team }
         } catch (e: Exception) {
             emptyList()
         }

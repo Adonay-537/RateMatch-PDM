@@ -24,25 +24,27 @@ data class MatchEntity(
     val leagueLogo: String,
     val homeLogo: String,
     val awayLogo: String,
-    val utcDate: String
+    val utcDate: String,
+
+    val userRating: Int = 0
 )
 
 fun MatchEntity.toModel(): Match {
     return Match(
         id = id, homeTeam = homeTeam, awayTeam = awayTeam,
         scoreHome = scoreHome, scoreAway = scoreAway,
-        status = status, isHidden = isHidden, isFavorite = isFavorite, 
+        status = status, isHidden = isHidden, isFavorite = isFavorite,
         leagueId = leagueId, leagueName = leagueName, leagueLogo = leagueLogo,
-        homeLogo = homeLogo, awayLogo = awayLogo, utcDate = utcDate
-    )
+        homeLogo = homeLogo, awayLogo = awayLogo, utcDate = utcDate,
+        userRating = userRating)
 }
 
 fun Match.toEntity(): MatchEntity {
     return MatchEntity(
         id = id, homeTeam = homeTeam, awayTeam = awayTeam,
         scoreHome = scoreHome, scoreAway = scoreAway,
-        status = status, isHidden = isHidden, isFavorite = isFavorite, 
+        status = status, isHidden = isHidden, isFavorite = isFavorite,
         leagueId = leagueId, leagueName = leagueName, leagueLogo = leagueLogo,
-        homeLogo = homeLogo, awayLogo = awayLogo, utcDate = utcDate
-    )
+        homeLogo = homeLogo, awayLogo = awayLogo, utcDate = utcDate,
+        userRating = userRating )
 }

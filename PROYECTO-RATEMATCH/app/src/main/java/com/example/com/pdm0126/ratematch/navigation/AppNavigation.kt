@@ -15,12 +15,14 @@ import androidx.compose.runtime.collectAsState
 import com.example.com.pdm0126.ratematch.ui.viewmodel.AuthViewModel
 import com.example.com.pdm0126.ratematch.ui.viewmodel.DashboardViewModel
 import com.example.com.pdm0126.ratematch.ui.viewmodel.MatchDetailViewModel
+import com.example.com.pdm0126.ratematch.ui.viewmodel.RankingViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable data object Login
 @Serializable data object Register
 @Serializable data object Dashboard
 @Serializable data object Settings
+@Serializable data object Ranking // NUEVA RUTA
 @Serializable data class MatchDetail(val matchId: Int)
 
 @Composable
@@ -79,7 +81,8 @@ fun AppNavigation(
             DashboardScreen(
                 viewModel = dashboardViewModel,
                 onNavigateToSettings = { navController.navigate(Settings) },
-                onNavigateToMatchDetail = { id -> navController.navigate(MatchDetail(id)) }
+                onNavigateToMatchDetail = { id -> navController.navigate(MatchDetail(id)) },
+                onNavigateToRanking = { navController.navigate(Ranking) } // NUEVA ACCIÓN
             )
         }
         composable<Settings> {
@@ -106,6 +109,13 @@ fun AppNavigation(
             )
             MatchDetailScreen(
                 viewModel = matchDetailViewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable<Ranking> {
+            val rankingViewModel: RankingViewModel = viewModel()
+            RankingScreen(
+                viewModel = rankingViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

@@ -28,8 +28,8 @@ class SelectionViewModel(private val leagueRepository: LeagueRepository) : ViewM
             val teams = leagueRepository.getTeamsForLeague(competitionId)
             _items.value = teams.map {
                 SelectableItem(
-                    id = it.id,
-                    name = it.name,
+                    id = it.id ?: 0,
+                    name = it.name ?: "Unknown",
                     category = "Equipos"
                 )
             }
@@ -43,8 +43,8 @@ class SelectionViewModel(private val leagueRepository: LeagueRepository) : ViewM
             val teams = leagueRepository.getNationalTeams()
             _items.value = teams.map {
                 SelectableItem(
-                    id = it.id,
-                    name = it.name,
+                    id = it.id ?: 0,
+                    name = it.name ?: "Unknown",
                     category = "Selecciones"
                 )
             }

@@ -16,6 +16,36 @@ data class MatchEventsResponse(
 )
 
 @Serializable
+data class EventDto(
+    val time: EventTimeDto,
+    val team: EventTeamDto,
+    val player: EventPlayerDto,
+    val assist: EventPlayerDto? = null,
+    val type: String,
+    val detail: String,
+    val comments: String? = null
+)
+
+@Serializable
+data class EventTimeDto(
+    val elapsed: Int,
+    val extra: Int? = null
+)
+
+@Serializable
+data class EventTeamDto(
+    val id: Int? = null,
+    val name: String? = null,
+    val logo: String? = null
+)
+
+@Serializable
+data class EventPlayerDto(
+    val id: Int? = null,
+    val name: String? = null
+)
+
+@Serializable
 data class TeamStatisticsDto(
     val team: TeamDto,
     val statistics: List<StatisticItemDto>

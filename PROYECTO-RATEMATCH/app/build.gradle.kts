@@ -50,6 +50,7 @@ android {
     }
     
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
@@ -111,6 +112,8 @@ dependencies {
     
     // Coil para cargar imágenes desde URL
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // WorkManager para tareas en segundo plano (Notificaciones)
     val workVersion = "2.9.0"

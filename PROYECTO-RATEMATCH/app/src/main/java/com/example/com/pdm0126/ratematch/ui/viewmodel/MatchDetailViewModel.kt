@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 sealed class MatchDetailState {
     data object Loading : MatchDetailState()
     data class Success(
-        val match: Match, 
+        val match: Match,
         val statistics: List<TeamStatisticsDto> = emptyList(),
         val events: List<EventDto> = emptyList()
     ) : MatchDetailState()
@@ -70,6 +70,22 @@ class MatchDetailViewModel(
     fun toggleFavorite(isFavorite: Boolean) {
         viewModelScope.launch {
             matchRepository.toggleMatchFavorite(matchId, isFavorite)
+        }
+    }
+
+    // NUEVO CÓDIGO: Función para enviar la calificación al Repositorio
+    fun rateMatch(rating: Int) {
+        viewModelScope.launch {
+            val currentState = _uiState.value
+            if (currentState is MatchDetailState.Success) {
+                try {
+                    // Llama al repositorio para guardar la calificación (marcará rojo temporalmente)
+                    matchRepository.rateMatch(matchId, rating, currentState.match)
+                } catch (e: Exception) {
+                    // Manejo de error si falla la escritura
+                    android.util.Log.e("MatchDetailVM", "Error guardando rating: ${e.message}")
+                }
+            }
         }
     }
 }

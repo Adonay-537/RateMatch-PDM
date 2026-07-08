@@ -1,6 +1,7 @@
 package com.example.com.pdm0126.ratematch.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +11,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -77,9 +80,12 @@ fun MatchDetailScreen(
                 }
                 is MatchDetailState.Success -> {
                     MatchDetailContent(
-                        match = state.match, 
+                        match = state.match,
                         statistics = state.statistics,
-                        events = state.events
+                        events = state.events,
+                        onRateMatch = { rating ->
+                            viewModel.rateMatch(rating) // Disparamos la acción de calificar
+                        }
                     )
                 }
             }
@@ -88,7 +94,12 @@ fun MatchDetailScreen(
 }
 
 @Composable
-fun MatchDetailContent(match: Match, statistics: List<TeamStatisticsDto>, events: List<EventDto>) {
+fun MatchDetailContent(
+    match: Match,
+    statistics: List<TeamStatisticsDto>,
+    events: List<EventDto>,
+    onRateMatch: (Int) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -119,28 +130,28 @@ fun MatchDetailContent(match: Match, statistics: List<TeamStatisticsDto>, events
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(24.dp))
-                    
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TeamColumn(name = match.homeTeam, logoUrl = match.homeLogo, modifier = Modifier.weight(1f))
-                        
+
                         Text(
                             text = "${match.scoreHome} - ${match.scoreAway}",
                             fontSize = 42.sp,
                             fontWeight = FontWeight.ExtraBold,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
-                        
+
                         TeamColumn(name = match.awayTeam, logoUrl = match.awayLogo, modifier = Modifier.weight(1f))
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Text(
                         text = match.status,
                         style = MaterialTheme.typography.titleMedium,
@@ -182,11 +193,11 @@ fun MatchDetailContent(match: Match, statistics: List<TeamStatisticsDto>, events
 
             val homeStats = statistics.getOrNull(0)?.statistics ?: emptyList()
             val awayStats = statistics.getOrNull(1)?.statistics ?: emptyList()
-            
+
             items(homeStats.size) { index ->
                 val homeStat = homeStats[index]
                 val awayStat = awayStats.find { it.type == homeStat.type }
-                
+
                 if (awayStat != null) {
                     StatBarRow(
                         label = homeStat.type,
@@ -201,6 +212,59 @@ fun MatchDetailContent(match: Match, statistics: List<TeamStatisticsDto>, events
                     Text("Estadísticas no disponibles aún", color = Color.Gray)
                 }
             }
+        }
+
+        // SECCIÓN DE CALIFICACIÓN (NUEVO)
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Califica este partido",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            RatingBar(
+                rating = match.userRating, // Marcará error rojo hasta que actualicemos Match.kt
+                onRatingChange = { newRating ->
+                    onRateMatch(newRating)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Text(
+                text = if (match.userRating > 0) "Tu calificación: ${match.userRating}/5" else "Aún no calificado",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Gray,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+// COMPONENTE DE ESTRELLAS (NUEVO)
+@Composable
+fun RatingBar(
+    rating: Int,
+    onRatingChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.Center) {
+        for (i in 1..5) {
+            Icon(
+                imageVector = if (i <= rating) Icons.Default.Star else Icons.Default.StarBorder,
+                contentDescription = "Calificar $i estrellas",
+                tint = if (i <= rating) Color(0xFFFFC107) else Color.Gray,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable { onRatingChange(i) }
+                    .padding(4.dp)
+            )
         }
     }
 }
@@ -232,7 +296,7 @@ fun GoalEventRow(event: EventDto) {
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = event.team.name,
+            text = event.team.name ?: "",
             style = MaterialTheme.typography.labelSmall,
             color = Color.Gray
         )
@@ -255,9 +319,9 @@ fun StatBarRow(label: String, homeValue: String, awayValue: String) {
             Text(text = label, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
             Text(text = awayValue, fontWeight = FontWeight.Bold)
         }
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()

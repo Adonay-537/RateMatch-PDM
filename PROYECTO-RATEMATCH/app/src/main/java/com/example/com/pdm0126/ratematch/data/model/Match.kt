@@ -2,7 +2,6 @@ package com.example.com.pdm0126.ratematch.data.model
 
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.ZoneId
 import java.time.LocalDate
 
 data class Match(
@@ -19,10 +18,9 @@ data class Match(
     val leagueLogo: String = "",
     val homeLogo: String = "",
     val awayLogo: String = "",
-    val utcDate: String = ""
+    val utcDate: String = "",
+    val userRating: Int = 0
 ) {
-    // Como ahora pedimos la zona horaria a la API, la fecha ya viene ajustada.
-    // Solo necesitamos darle formato para mostrarla.
     fun getLocalTime(): String {
         return try {
             val zonedDateTime = ZonedDateTime.parse(utcDate)
