@@ -13,7 +13,7 @@ import com.example.com.pdm0126.ratematch.data.database.entities.UserEntity
 
 @Database(
     entities = [LeagueEntity::class, MatchEntity::class, UserEntity::class],
-    version = 6,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

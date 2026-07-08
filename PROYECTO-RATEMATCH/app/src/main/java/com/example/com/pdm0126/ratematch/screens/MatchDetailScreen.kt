@@ -7,9 +7,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
@@ -84,7 +86,10 @@ fun MatchDetailScreen(
                         statistics = state.statistics,
                         events = state.events,
                         onRateMatch = { rating ->
-                            viewModel.rateMatch(rating) // Disparamos la acción de calificar
+                            viewModel.rateMatch(rating)
+                        },
+                        onPredictMatch = { homeScore, awayScore ->
+                            viewModel.predictMatch(homeScore, awayScore) // Enlace al nuevo método
                         }
                     )
                 }
@@ -98,7 +103,8 @@ fun MatchDetailContent(
     match: Match,
     statistics: List<TeamStatisticsDto>,
     events: List<EventDto>,
-    onRateMatch: (Int) -> Unit
+    onRateMatch: (Int) -> Unit,
+    onPredictMatch: (Int, Int) -> Unit // Nuevo lambda
 ) {
     LazyColumn(
         modifier = Modifier
@@ -162,7 +168,11 @@ fun MatchDetailContent(
             }
         }
 
-        // Eventos (Goles)
+
+        item {
+            PredictionSection(match = match, onSavePrediction = onPredictMatch)
+        }
+
         val goals = events.filter { it.type.lowercase() == "goal" }
         if (goals.isNotEmpty()) {
             item {
@@ -214,29 +224,34 @@ fun MatchDetailContent(
             }
         }
 
-        // SECCIÓN DE CALIFICACIÓN (NUEVO)
         item {
+            val isRatable = match.status != "NS" && match.status != "TBD"
+
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Califica este partido",
+                text = if (isRatable) "Califica este partido" else "Calificación disponible al comenzar el partido",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = if (isRatable) MaterialTheme.colorScheme.onSurface else Color.Gray
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             RatingBar(
-                rating = match.userRating, // Marcará error rojo hasta que actualicemos Match.kt
+                rating = match.userRating,
                 onRatingChange = { newRating ->
                     onRateMatch(newRating)
                 },
+                enabled = isRatable,
                 modifier = Modifier.fillMaxWidth()
             )
 
             Text(
-                text = if (match.userRating > 0) "Tu calificación: ${match.userRating}/5" else "Aún no calificado",
+                text = if (!isRatable) "Próximamente"
+                else if (match.userRating > 0) "Tu calificación: ${match.userRating}/5"
+                else "Aún no calificado",
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.Gray,
                 modifier = Modifier.fillMaxWidth(),
@@ -247,22 +262,144 @@ fun MatchDetailContent(
     }
 }
 
-// COMPONENTE DE ESTRELLAS (NUEVO)
+
+@Composable
+fun PredictionSection(match: Match, onSavePrediction: (Int, Int) -> Unit) {
+    var tempHomeScore by remember { mutableIntStateOf(match.predictedHome ?: 0) }
+    var tempAwayScore by remember { mutableIntStateOf(match.predictedAway ?: 0) }
+
+    // El usuario puede predecir únicamente si el partido no ha empezado (Not Started)
+    val isPredictable = match.status == "NS"
+
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Tu Pronóstico Exclusivo",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ScoreSelector(
+                    teamName = match.homeTeam,
+                    score = tempHomeScore,
+                    onIncrease = { tempHomeScore++ },
+                    onDecrease = { if (tempHomeScore > 0) tempHomeScore-- },
+                    enabled = isPredictable
+                )
+
+                Text(
+                    text = "vs",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                    fontSize = 16.sp
+                )
+
+                ScoreSelector(
+                    teamName = match.awayTeam,
+                    score = tempAwayScore,
+                    onIncrease = { tempAwayScore++ },
+                    onDecrease = { if (tempAwayScore > 0) tempAwayScore-- },
+                    enabled = isPredictable
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isPredictable) {
+                Button(
+                    onClick = { onSavePrediction(tempHomeScore, tempAwayScore) },
+                    modifier = Modifier.fillMaxWidth(0.75f)
+                ) {
+                    Text(if (match.predictedHome != null) "Actualizar Predicción" else "Fijar Predicción")
+                }
+            } else {
+                Text(
+                    text = "Pronósticos cerrados. El encuentro se encuentra en vivo o finalizado.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ScoreSelector(
+    teamName: String,
+    score: Int,
+    onIncrease: () -> Unit,
+    onDecrease: () -> Unit,
+    enabled: Boolean
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = teamName,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(100.dp)
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onDecrease, enabled = enabled) {
+                Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Decrementar")
+            }
+            Text(
+                text = score.toString(),
+                fontSize = 26.sp,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.padding(horizontal = 6.dp)
+            )
+            IconButton(onClick = onIncrease, enabled = enabled) {
+                Icon(Icons.Default.AddCircleOutline, contentDescription = "Incrementar")
+            }
+        }
+    }
+}
+
+// COMPONENTE DE ESTRELLAS
 @Composable
 fun RatingBar(
     rating: Int,
     onRatingChange: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Row(modifier = modifier, horizontalArrangement = Arrangement.Center) {
         for (i in 1..5) {
+            val isSelected = i <= rating
             Icon(
-                imageVector = if (i <= rating) Icons.Default.Star else Icons.Default.StarBorder,
+                imageVector = if (isSelected) Icons.Default.Star else Icons.Default.StarBorder,
                 contentDescription = "Calificar $i estrellas",
-                tint = if (i <= rating) Color(0xFFFFC107) else Color.Gray,
+                tint = when {
+                    isSelected && enabled -> Color(0xFFFFC107)
+                    isSelected && !enabled -> Color(0xFFFFC107).copy(alpha = 0.5f)
+                    else -> Color.Gray.copy(alpha = 0.5f)
+                },
                 modifier = Modifier
                     .size(40.dp)
-                    .clickable { onRatingChange(i) }
+                    .then(
+                        if (enabled) Modifier.clickable { onRatingChange(i) }
+                        else Modifier
+                    )
                     .padding(4.dp)
             )
         }

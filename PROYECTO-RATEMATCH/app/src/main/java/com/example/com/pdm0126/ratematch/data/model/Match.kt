@@ -19,7 +19,9 @@ data class Match(
     val homeLogo: String = "",
     val awayLogo: String = "",
     val utcDate: String = "",
-    val userRating: Int = 0
+    val userRating: Int = 0,
+    val predictedHome: Int? = null,
+    val predictedAway: Int? = null
 ) {
     fun getLocalTime(): String {
         return try {

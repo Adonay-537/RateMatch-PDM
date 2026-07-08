@@ -29,6 +29,9 @@ class MatchRepository(
 
                 val existingMatch = matchDao.getMatchByIdInstant(resource.fixture.id)
                 val savedRating = existingMatch?.userRating ?: 0
+                // Rescatamos las predicciones locales para no borrarlas al refrescar la API
+                val savedPredHome = existingMatch?.predictedHome
+                val savedPredAway = existingMatch?.predictedAway
 
                 Match(
                     id = resource.fixture.id,
@@ -43,7 +46,9 @@ class MatchRepository(
                     leagueLogo = resource.league.logo ?: "",
                     homeLogo = resource.teams.home.logo ?: "",
                     awayLogo = resource.teams.away.logo ?: "",
-                    userRating = savedRating // Rescatamos el rating
+                    userRating = savedRating,
+                    predictedHome = savedPredHome, // Guardamos el valor
+                    predictedAway = savedPredAway  // Guardamos el valor
                 )
             }
 
@@ -79,17 +84,11 @@ class MatchRepository(
         matchDao.updateHiddenStatus(matchId, isHidden)
     }
 
-    // ==========================================
-    // NUEVA FUNCIÓN: Calificar y Subir a Firebase
-    // ==========================================
     suspend fun rateMatch(matchId: Int, rating: Int, match: Match) {
         try {
-            // 1. Guardamos localmente en Room creando una copia del partido con el nuevo rating
             val updatedMatch = match.copy(userRating = rating)
             matchDao.insertMatches(listOf(updatedMatch.toEntity()))
 
-            // 2. Subimos a Firestore (La colección "rated_matches" actuará como tu historial)
-            // Solo subimos los datos que necesitamos para armar el Ranking después.
             val firestoreData = hashMapOf(
                 "matchId" to matchId,
                 "homeTeam" to match.homeTeam,
@@ -99,10 +98,9 @@ class MatchRepository(
                 "leagueName" to match.leagueName,
                 "date" to match.utcDate,
                 "userRating" to rating,
-                "timestamp" to System.currentTimeMillis() // Para ordenar cronológicamente si es necesario
+                "timestamp" to System.currentTimeMillis()
             )
 
-            // Guardamos el documento usando el ID del partido para que no se duplique si lo califica dos veces
             firestore.collection("rated_matches")
                 .document(matchId.toString())
                 .set(firestoreData)
@@ -114,6 +112,36 @@ class MatchRepository(
                 }
         } catch (e: Exception) {
             android.util.Log.e("MatchRepository", "Error local guardando calificación: ${e.message}")
+        }
+    }
+
+
+    suspend fun savePrediction(matchId: Int, homeScore: Int, awayScore: Int, match: Match) {
+        try {
+            val updatedMatch = match.copy(predictedHome = homeScore, predictedAway = awayScore)
+            matchDao.insertMatches(listOf(updatedMatch.toEntity()))
+
+            val firestoreData = hashMapOf(
+                "matchId" to matchId,
+                "homeTeam" to match.homeTeam,
+                "awayTeam" to match.awayTeam,
+                "predictedHome" to homeScore,
+                "predictedAway" to awayScore,
+                "status" to "PENDING", // PENDING hasta que el partido acabe y repartamos puntos
+                "timestamp" to System.currentTimeMillis()
+            )
+
+            firestore.collection("predictions")
+                .document(matchId.toString())
+                .set(firestoreData)
+                .addOnSuccessListener {
+                    android.util.Log.d("Firestore", "¡Predicción del partido $matchId guardada con éxito!")
+                }
+                .addOnFailureListener { e ->
+                    android.util.Log.e("Firestore", "Error al guardar la predicción: ${e.message}")
+                }
+        } catch (e: Exception) {
+            android.util.Log.e("MatchRepository", "Error guardando predicción local: ${e.message}")
         }
     }
 }
