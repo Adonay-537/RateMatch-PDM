@@ -2,17 +2,19 @@ package com.example.com.pdm0126.ratematch.screens
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Warning // <-- Importante para el ícono de error
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -61,11 +64,11 @@ fun DashboardScreen(
             TopAppBar(
                 title = { Text("RateMatch") },
                 actions = {
+                    IconButton(onClick = onNavigateToRanking) {
+                        Icon(Icons.Default.EmojiEvents, contentDescription = "Ranking")
+                    }
                     IconButton(onClick = { viewModel.refreshMatches() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
-                    }
-                    IconButton(onClick = onNavigateToRanking) {
-                        Icon(Icons.Default.Leaderboard, contentDescription = "Ranking")
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
@@ -130,9 +133,9 @@ fun DashboardScreen(
                 }
                 is DashboardState.Success -> {
                     val filteredMatches = if (isLiveOnly) {
-                        state.matches.filter { 
-                            it.status == "LIVE" || it.status == "IN_PLAY" || 
-                            it.status == "1H" || it.status == "2H" || it.status == "HT" 
+                        state.matches.filter {
+                            it.status == "LIVE" || it.status == "IN_PLAY" ||
+                                    it.status == "1H" || it.status == "2H" || it.status == "HT"
                         }
                     } else {
                         state.matches
@@ -140,11 +143,11 @@ fun DashboardScreen(
 
                     if (filteredMatches.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No hay partidos disponibles.")
+                            Text("No hay partidos disponibles.", color = Color.Gray)
                         }
                     } else {
                         val groupedByLeague = filteredMatches.groupBy { it.leagueName }
-                        
+
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(16.dp),
@@ -166,14 +169,67 @@ fun DashboardScreen(
                     }
                 }
                 is DashboardState.Error -> {
+                    // ==========================================
+                    // NUEVO: INTERFAZ DE ERROR PROFESIONAL
+                    // ==========================================
+
+                    // Evaluamos si el error proviene de una desconexión
+                    val isNetworkError = state.message == "null" ||
+                            state.message.contains("UnknownHost", ignoreCase = true) ||
+                            state.message.contains("Connect", ignoreCase = true)
+
+                    val errorTitle = if (isNetworkError) "Sin Conexión a Internet" else "¡Ups! Algo salió mal"
+                    val errorSubtitle = if (isNetworkError)
+                        "Revisa tu conexión Wi-Fi o datos móviles y vuelve a intentarlo."
+                    else
+                        "Ocurrió un error inesperado. Intenta recargar la pantalla."
+
                     Column(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(text = "Error: ${state.message}", color = MaterialTheme.colorScheme.error)
-                        Button(onClick = { viewModel.refreshMatches() }) {
-                            Text("Reintentar")
+                        // Nota: Aquí usamos un Icon de Android, pero puedes cambiarlo fácilmente por:
+                        // Image(painter = painterResource(id = R.drawable.tu_imagen), contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Error de red",
+                            modifier = Modifier.size(80.dp),
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Text(
+                            text = errorTitle,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = errorSubtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Button(
+                            onClick = { viewModel.refreshMatches() },
+                            modifier = Modifier.fillMaxWidth(0.7f),
+                            contentPadding = PaddingValues(14.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        ) {
+                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Reintentar", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -182,6 +238,7 @@ fun DashboardScreen(
     }
 }
 
+// (Tus componentes LeagueHeader y MatchItem se mantienen exactamente igual a partir de aquí)
 @Composable
 fun LeagueHeader(name: String, logoUrl: String?) {
     Row(
@@ -225,6 +282,7 @@ fun MatchItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
+                // Fila Equipo Local
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AsyncImage(
                         model = match.homeLogo,
@@ -238,9 +296,10 @@ fun MatchItem(
                         fontWeight = FontWeight.Medium
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
+                // Fila Equipo Visitante
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AsyncImage(
                         model = match.awayLogo,
@@ -256,7 +315,7 @@ fun MatchItem(
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = match.status,
@@ -292,7 +351,7 @@ fun MatchItem(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
-                
+
                 IconButton(onClick = onHideScoreClick) {
                     Icon(
                         imageVector = if (match.isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff,

@@ -2,6 +2,7 @@ package com.example.com.pdm0126.ratematch.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +39,16 @@ class RankingViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = RankingState.Loading
             try {
-                val snapshot = firestore.collection("rated_matches")
+                // OBTENEMOS EL UID DEL USUARIO ACTUAL
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                if (userId == null) {
+                    _uiState.value = RankingState.Error("Error: Usuario no autenticado.")
+                    return@launch
+                }
+
+                // NUEVA RUTA DE FIRESTORE: users -> [userId] -> rated_matches
+                val snapshot = firestore.collection("users").document(userId)
+                    .collection("rated_matches")
                     .orderBy("userRating", Query.Direction.DESCENDING)
                     .limit(10)
                     .get()
